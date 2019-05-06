@@ -5,4 +5,11 @@ docker rm -f input
 docker create --name input --volume /home/builder/package alpine:3.9 /bin/true
 docker cp . input:/home/builder/package/
 
-docker run --volumes-from input  --volume $(pwd)/ssh.rsa:/home/builder/ssh.rsa --volume $(pwd)/apk:/packages cyphernode/alpine-abuild
+docker run -it --volumes-from input \
+ -e RSA_PRIVATE_KEY_NAME="cyphernode@satoshiportal.com.rsa" \
+ -e PACKAGER="Cyphernode Team <cyphernode@satoshiportal.com>" \
+ -e PACKAGER_PRIVKEY="/home/builder/.abuild/cyphernode@satoshiportal.com.rsa" \
+ -v "$HOME/.abuild:/home/builder/.abuild" \
+ -v "$HOME/.abuild/packages:/packages" \
+ -v "$HOME/.abuild/cyphernode@satoshiportal.com.rsa.pub:/etc/apk/keys/cyphernode@satoshiportal.com.rsa.pub" \
+ cyphernode/alpine-abuild

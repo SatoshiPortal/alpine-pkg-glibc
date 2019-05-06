@@ -1,3 +1,49 @@
+# Satoshi Portal, what we did
+
+## Build abuild
+
+```
+git clone https://github.com/SatoshiPortal/docker-alpine-abuild.git
+cd docker-alpine-abuild/
+docker build -t cyphernode/alpine-abuild .
+```
+
+## Our keys
+
+```
+docker run --name keys --entrypoint abuild-keygen -e PACKAGER="Cyphernode Team <cyphernode@satoshiportal.com>" cyphernode/alpine-abuild -n
+mkdir ~/.abuild
+docker cp keys:/home/builder/.abuild/cyphernode@satoshiportal.com-5cd07e40.rsa ~/.abuild/
+docker cp keys:/home/builder/.abuild/cyphernode@satoshiportal.com-5cd07e40.rsa.pub ~/.abuild/
+```
+
+## Builder
+
+```
+git clone https://github.com/satoshiportal/docker-glibc-builder.git
+cd docker-glibc-builder/
+docker build -t cyphernode/glibc-builder .
+cd ../builder
+docker run --name glibc-binary cyphernode/glibc-builder 2.29 /usr/glibc-compat
+```
+
+```
+docker cp glibc-binary:/glibc-bin-2.29.tar.gz ./
+mv glibc-bin-2.29.tar.gz glibc-bin-2.29-0-x86_64.tar.gz
+mv glibc-bin-2.29.tar.gz glibc-bin-2.29-0-aarch64.tar.gz
+mv glibc-bin-2.29.tar.gz glibc-bin-2.29-0-armhf.tar.gz
+docker rm glibc-binary
+```
+
+## Packager
+
+```
+git clone https://github.com/satoshiportal/alpine-pkg-glibc
+cd alpine-pkg-glibc/
+./package.sh
+```
+
+
 # alpine-pkg-glibc
 
 [![CircleCI](https://circleci.com/gh/sgerrand/alpine-pkg-glibc/tree/master.svg?style=svg)](https://circleci.com/gh/sgerrand/alpine-pkg-glibc/tree/master) ![x86_64](https://img.shields.io/badge/x86__64-supported-brightgreen.svg)
