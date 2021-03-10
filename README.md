@@ -1,46 +1,112 @@
 # Satoshi Portal, what we did
 
-## Build abuild
+## Getting everything
 
 ```
 git clone https://github.com/SatoshiPortal/docker-alpine-abuild.git
-cd docker-alpine-abuild/
+git clone https://github.com/satoshiportal/docker-glibc-builder.git
+git clone https://github.com/satoshiportal/alpine-pkg-glibc
+
+cd docker-glibc-builder/
+docker build -t cyphernode/glibc-builder .
+cd ../docker-alpine-abuild/
 docker build -t cyphernode/alpine-abuild .
 ```
 
 ## Our keys
 
+You can find our public key at https://raw.githubusercontent.com/SatoshiPortal/alpine-pkg-glibc/master/.abuild/cyphernode@satoshiportal.com.rsa.pub
+
+We generated them with:
+
 ```
 docker run --name keys --entrypoint abuild-keygen -e PACKAGER="Cyphernode Team <cyphernode@satoshiportal.com>" cyphernode/alpine-abuild -n
-mkdir ~/.abuild
-docker cp keys:/home/builder/.abuild/cyphernode@satoshiportal.com-5cd07e40.rsa ~/.abuild/
-docker cp keys:/home/builder/.abuild/cyphernode@satoshiportal.com-5cd07e40.rsa.pub ~/.abuild/
+docker cp keys:/home/builder/.abuild/cyphernode@satoshiportal.com-5cd07e40.rsa ./
+docker cp keys:/home/builder/.abuild/cyphernode@satoshiportal.com-5cd07e40.rsa.pub ./
+docker rm -f keys
 ```
 
-## Builder
+## Building glibc
 
 ```
-git clone https://github.com/satoshiportal/docker-glibc-builder.git
-cd docker-glibc-builder/
-docker build -t cyphernode/glibc-builder .
-cd ../builder
-docker run --name glibc-binary cyphernode/glibc-builder 2.29 /usr/glibc-compat
-```
-
-```
-docker cp glibc-binary:/glibc-bin-2.29.tar.gz ./
-mv glibc-bin-2.29.tar.gz glibc-bin-2.29-0-x86_64.tar.gz
-mv glibc-bin-2.29.tar.gz glibc-bin-2.29-0-aarch64.tar.gz
-mv glibc-bin-2.29.tar.gz glibc-bin-2.29-0-armhf.tar.gz
+cd ../alpine-pkg-glibc/
+cp ../docker-alpine-abuild/cyphernode@satoshiportal.com.rsa* .abuild/
+chmod 600 .abuild/cyphernode@satoshiportal.com.rsa
+docker run --name glibc-binary cyphernode/glibc-builder 2.33 /usr/glibc-compat
+docker cp glibc-binary:/glibc-bin-2.33.tar.gz ./
 docker rm glibc-binary
 ```
 
-## Packager
+## Building the APK
+
+### x86_64
 
 ```
-git clone https://github.com/satoshiportal/alpine-pkg-glibc
-cd alpine-pkg-glibc/
+mv glibc-bin-2.33.tar.gz glibc-bin-2.33-0-x86_64.tar.gz
+cp APKBUILD-x86_64 APKBUILD
+```
+
+### aarch64 (ARM64)
+
+```
+mv glibc-bin-2.33.tar.gz glibc-bin-2.33-0-aarch64.tar.gz
+cp APKBUILD-aarch64 APKBUILD
+```
+
+### armhf (arm32)
+
+```
+mv glibc-bin-2.33.tar.gz glibc-bin-2.33-0-armhf.tar.gz
+cp APKBUILD-armhf APKBUILD
+```
+
+### All arch
+
+```
+chmod +x package.sh
+vi package.sh
 ./package.sh
+```
+
+## Prepare release
+
+### x86_64
+
+```
+cp glibc-bin-2.33-0-x86_64.tar.gz .abuild/packages/builder/x86_64/
+cd .abuild/packages/builder/x86_64
+mv APKINDEX.tar.gz APKINDEX-x86_64.tar.gz
+mv glibc-2.33-r0.apk glibc-2.33-r0-x86_64.apk
+mv glibc-bin-2.33-r0.apk glibc-bin-2.33-r0-x86_64.apk
+mv glibc-dev-2.33-r0.apk glibc-dev-2.33-r0-x86_64.apk
+mv glibc-i18n-2.33-r0.apk glibc-i18n-2.33-r0-x86_64.apk
+shasum -a 256 glibc-2.33-r0-x86_64.apk glibc-bin-2.33-r0-x86_64.apk > SHA256SUMS.asc
+```
+
+### aarch64
+
+```
+cp glibc-bin-2.33-0-aarch64.tar.gz .abuild/packages/builder/aarch64/
+cd .abuild/packages/builder/aarch64
+mv APKINDEX.tar.gz APKINDEX-aarch64.tar.gz
+mv glibc-2.33-r0.apk glibc-2.33-r0-aarch64.apk
+mv glibc-bin-2.33-r0.apk glibc-bin-2.33-r0-aarch64.apk
+mv glibc-dev-2.33-r0.apk glibc-dev-2.33-r0-aarch64.apk
+mv glibc-i18n-2.33-r0.apk glibc-i18n-2.33-r0-aarch64.apk
+shasum -a 256 glibc-2.33-r0-aarch64.apk glibc-bin-2.33-r0-aarch64.apk >> SHA256SUMS.asc
+```
+
+### x86_64
+
+```
+cp glibc-bin-2.33-0-armhf.tar.gz .abuild/packages/builder/armhf/
+cd .abuild/packages/builder/armhf
+mv APKINDEX.tar.gz APKINDEX-armhf.tar.gz
+mv glibc-2.33-r0.apk glibc-2.33-r0-armhf.apk
+mv glibc-bin-2.33-r0.apk glibc-bin-2.33-r0-armhf.apk
+mv glibc-dev-2.33-r0.apk glibc-dev-2.33-r0-armhf.apk
+mv glibc-i18n-2.33-r0.apk glibc-i18n-2.33-r0-armhf.apk
+shasum -a 256 glibc-2.33-r0-armhf.apk glibc-bin-2.33-r0-armhf.apk >> SHA256SUMS.asc
 ```
 
 
