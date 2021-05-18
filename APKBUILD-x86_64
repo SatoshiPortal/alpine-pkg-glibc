@@ -48,6 +48,6 @@ i18n() {
   cp -a "$srcdir"/usr/glibc-compat/share "$subpkgdir"/usr/glibc-compat
 }
 
-sha512sums="0e0dfa4ab13e6ee38cb34f7585a7fd5ede827f5cf73cd47dddb70a5264d702cb5bafe5fec452a6e731b151bc5fb274b17ac367655dc314fb2c4b3e92189911a6  glibc-bin-$pkgver-$_pkgrel-$arch.tar.gz
+sha512sums="c27cd615bb450295de0cf8758fead0a2a1d1dc84fe34aeb8b9b444fac5f09efa67ef411293e3294aaef1b3ea024817104b47065bbb032ef6f1b212cf7843e82f  glibc-bin-$pkgver-$_pkgrel-$arch.tar.gz
 478bdd9f7da9e6453cca91ce0bd20eec031e7424e967696eb3947e3f21aa86067aaf614784b89a117279d8a939174498210eaaa2f277d3942d1ca7b4809d4b7e  nsswitch.conf
 2912f254f8eceed1f384a1035ad0f42f5506c609ec08c361e2c0093506724a6114732db1c67171c8561f25893c0dd5c0c1d62e8a726712216d9b45973585c9f7  ld.so.conf"

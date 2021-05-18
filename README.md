@@ -46,7 +46,7 @@ mv glibc-bin-2.31.tar.gz glibc-bin-2.31-0-x86_64.tar.gz
 cp APKBUILD-x86_64 APKBUILD
 ```
 
-### aarch64 (ARM64)
+### aarch64 (arm64)
 
 ```
 mv glibc-bin-2.31.tar.gz glibc-bin-2.31-0-aarch64.tar.gz
@@ -96,7 +96,7 @@ mv glibc-i18n-2.31-r0.apk glibc-i18n-2.31-r0-aarch64.apk
 shasum -a 256 glibc-2.31-r0-aarch64.apk glibc-bin-2.31-r0-aarch64.apk >> SHA256SUMS.asc
 ```
 
-### x86_64
+### armhf
 
 ```
 cp glibc-bin-2.31-0-armhf.tar.gz .abuild/packages/builder/armhf/
